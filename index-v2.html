@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrislice Tradeshow Deck Builder</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .container { max-width: 800px; margin: 0 auto; padding: 1.5rem; }
+        
+        .section { 
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .section-title { font-size: 20px; font-weight: 600; margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem; }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #378ADD; background: white; }
+        textarea { min-height: 80px; resize: vertical; }
+        
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+        
+        .button-group { display: flex; gap: 1rem; margin-top: 1.5rem; }
+        button { padding: 0.75rem 1.5rem; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-weight: 600; background: white; }
+        button:hover { background: #f0f0f0; }
+        button.primary { background: #4CAF50; color: white; border-color: #4CAF50; font-size: 16px; padding: 1rem 2rem; }
+        button.primary:hover { background: #45a049; }
+        button.primary:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .progress-bar { width: 100%; height: 6px; background: #ddd; border-radius: 3px; margin-bottom: 1rem; overflow: hidden; }
+        .progress-fill { height: 100%; background: #378ADD; transition: width 0.3s; }
+        
+        .tabs { display: flex; gap: 1rem; border-bottom: 1px solid #ddd; margin-bottom: 1.5rem; overflow-x: auto; }
+        .tab { padding: 1rem 0; border-bottom: 2px solid transparent; cursor: pointer; font-weight: 500; font-size: 14px; color: #999; white-space: nowrap; }
+        .tab.active { border-bottom-color: #333; color: #333; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .attendee-card { background: #fafafa; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem; border: 1px solid #ddd; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .remove-btn { background: none; border: none; color: #d32f2f; cursor: pointer; padding: 0; font-weight: 500; }
+        
+        .header { background: #378ADD; color: white; padding: 2rem; margin: -1.5rem -1.5rem 1.5rem -1.5rem; border-radius: 8px 8px 0 0; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 700; }
+        .header p { margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 14px; }
+        
+        .status { padding: 1rem; border-radius: 6px; margin-bottom: 1rem; display: none; font-size: 14px; }
+        .status.show { display: block; }
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        .add-more-btn { background: white; border: 1px solid #ddd; padding: 0.5rem 1rem; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="section">
+        <div class="header">
+            <h1>Nutrislice Tradeshow Deck Builder</h1>
+            <p>Generate your presentation automatically — one click, done!</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+        </div>
+        
+        <div id="status" class="status"></div>
+    </div>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab(0)">Event Info</div>
+        <div class="tab" onclick="switchTab(1)">Attendees</div>
+        <div class="tab" onclick="switchTab(2)">Booth</div>
+        <div class="tab" onclick="switchTab(3)">Goals</div>
+        <div class="tab" onclick="switchTab(4)">Logistics</div>
+    </div>
+    
+    <div class="tab-content active">
+        <div class="section">
+            <div class="section-title">Event Basics</div>
+            <div class="form-group">
+                <label>Event Name *</label>
+                <input type="text" id="eventName" placeholder="e.g., SNA Conference 2026" oninput="updateProgress()">
+            </div>
+            <div class="two-col">
+                <div class="form-group">
+                    <label>Location/City *</label>
+                    <input type="text" id="eventCity" placeholder="e.g., Las Vegas, NV" oninput="updateProgress()">
+                </div>
+                <div class="form-group">
+                    <label>Venue Name</label>
+                    <input type="text" id="venueName" placeholder="e.g., Convention Center" oninput="updateProgress()">
+                </div>
+            </div>
+            <div class="two-col">
+                <div class="form-group">
+                    <label>Start Date *</label>
+                    <input type="date" id="startDate" oninput="updateProgress()">
+                </div>
+                <div class="form-group">
+                    <label>End Date *</label>
+                    <input type="date" id="endDate" oninput="updateProgress()">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Booth Number *</label>
+                <input type="text" id="boothNumber" placeholder="e.g., 1234" oninput="updateProgress()">
+            </div>
+            <div class="form-group">
+                <label>About the Event</label>
+                <textarea id="aboutEvent" placeholder="Describe the event..."></textarea>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content">
+        <div class="section">
+            <div class="section-title">Nutrislice Team Attending</div>
+            <div id="attendeesList"></div>
+            <button class="add-more-btn" onclick="addAttendee()">+ Add Attendee</button>
+        </div>
+    </div>
+    
+    <div class="tab-content">
+        <div class="section">
+            <div class="section-title">Booth Information</div>
+            <div class="form-group">
+                <label>Booth Size</label>
+                <select id="boothSize" oninput="updateProgress()">
+                    <option value="10x10">10' x 10'</option>
+                    <option value="10x20">10' x 20'</option>
+                    <option value="20x20">20' x 20'</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Show Hours</label>
+                <textarea id="showHours" placeholder="Day 1: 9:00 AM - 5:00 PM&#10;Day 2: 9:00 AM - 5:00 PM"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Booth Materials</label>
+                <textarea id="handouts" placeholder="Hardware, handouts, items..."></textarea>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content">
+        <div class="section">
+            <div class="section-title">Goals & Deadlines</div>
+            <div class="two-col">
+                <div class="form-group">
+                    <label>Lead Goal</label>
+                    <input type="text" id="leadGoal" placeholder="e.g., 25">
+                </div>
+                <div class="form-group">
+                    <label>Opportunities Goal</label>
+                    <input type="text" id="opportunityGoal" placeholder="e.g., 10">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Show Goals</label>
+                <textarea id="showGoals" placeholder="Key objectives..."></textarea>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content">
+        <div class="section">
+            <div class="section-title">Warehouse & Shipping</div>
+            <div class="form-group">
+                <label>Warehouse Address</label>
+                <textarea id="warehouseAddress" placeholder="Full address..."></textarea>
+            </div>
+            <div class="two-col">
+                <div class="form-group">
+                    <label>Warehouse Hours</label>
+                    <input type="text" id="warehouseHours" placeholder="8:00 AM - 5:00 PM">
+                </div>
+                <div class="form-group">
+                    <label>FedEx Account</label>
+                    <input type="text" id="fedexAccount" placeholder="Account #">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="button-group">
+            <button onclick="resetForm()">Clear All</button>
+            <button class="primary" id="generateBtn" onclick="generatePowerPoint()" disabled>↓ Generate PowerPoint</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+
+<script>
+let attendeeCount = 1;
+
+function switchTab(index) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-content')[index].classList.add('active');
+    document.querySelectorAll('.tab')[index].classList.add('active');
+}
+
+function addAttendee() {
+    const container = document.getElementById('attendeesList');
+    const card = document.createElement('div');
+    card.className = 'attendee-card';
+    card.innerHTML = `
+        <div class="card-header">
+            <strong>Attendee ${attendeeCount}</strong>
+            <button class="remove-btn" onclick="this.parentElement.parentElement.remove(); updateProgress();">Remove</button>
+        </div>
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" class="attendee-name" placeholder="Full name" oninput="updateProgress()">
+        </div>
+        <div class="two-col">
+            <div class="form-group">
+                <label>Arrival Date</label>
+                <input type="date" class="arrival-date" oninput="updateProgress()">
+            </div>
+            <div class="form-group">
+                <label>Departure Date</label>
+                <input type="date" class="departure-date" oninput="updateProgress()">
+            </div>
+        </div>
+        <div class="two-col">
+            <div class="form-group">
+                <label>Hotel</label>
+                <input type="text" class="hotel-name" placeholder="Hotel name" oninput="updateProgress()">
+            </div>
+            <div class="form-group">
+                <label>Flight</label>
+                <input type="text" class="flight-details" placeholder="Flight details" oninput="updateProgress()">
+            </div>
+        </div>
+    `;
+    container.appendChild(card);
+    attendeeCount++;
+    updateProgress();
+}
+
+function updateProgress() {
+    const eventName = document.getElementById('eventName').value.trim();
+    const eventCity = document.getElementById('eventCity').value.trim();
+    const startDate = document.getElementById('startDate').value.trim();
+    const endDate = document.getElementById('endDate').value.trim();
+    const boothNumber = document.getElementById('boothNumber').value.trim();
+    
+    const allFieldsFilled = eventName && eventCity && startDate && endDate && boothNumber;
+    document.getElementById('generateBtn').disabled = !allFieldsFilled;
+    
+    const fields = document.querySelectorAll('input, textarea, select');
+    let filledCount = 0;
+    fields.forEach(field => { if (field.value.trim()) filledCount++; });
+    const progress = Math.round((filledCount / fields.length) * 100);
+    document.getElementById('progressFill').style.width = progress + '%';
+}
+
+function resetForm() {
+    if (confirm('Clear all?')) {
+        document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
+        document.getElementById('attendeesList').innerHTML = '';
+        attendeeCount = 1;
+        addAttendee();
+        updateProgress();
+    }
+}
+
+function showStatus(msg, type) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.classList.remove('success', 'error', 'info');
+    el.classList.add('show', type);
+    setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+function generatePowerPoint() {
+    showStatus('⏳ Generating...', 'info');
+    document.getElementById('generateBtn').disabled = true;
+    
+    setTimeout(() => {
+        try {
+            const prs = new PptxGenJS();
+            const colorPrimary = '378ADD';
+            const colorText = '333333';
+            
+            // Slide 1: Title
+            let slide = prs.addSlide();
+            slide.background = { color: colorPrimary };
+            slide.addText(document.getElementById('eventName').value, {
+                x: 0.5, y: 2.5, w: 9, h: 1, fontSize: 54, bold: true, color: 'FFFFFF'
+            });
+            slide.addText(`${document.getElementById('startDate').value} - ${document.getElementById('endDate').value}`, {
+                x: 0.5, y: 3.7, w: 9, h: 0.5, fontSize: 24, color: 'FFFFFF'
+            });
+            slide.addText(`Booth #${document.getElementById('boothNumber').value}`, {
+                x: 0.5, y: 4.3, w: 9, h: 0.5, fontSize: 20, color: '4CAF50', bold: true
+            });
+            
+            // Slide 2: Overview
+            slide = prs.addSlide();
+            slide.background = { color: 'FFFFFF' };
+            slide.addText('Event Overview', { x: 0.5, y: 0.5, w: 9, h: 0.6, fontSize: 40, bold: true, color: colorPrimary });
+            const about = document.getElementById('aboutEvent').value;
+            if (about) {
+                slide.addText(about, { x: 0.5, y: 1.3, w: 9, h: 3, fontSize: 14, color: colorText });
+            }
+            
+            // Slide 3: Attendees
+            const attendees = [];
+            document.querySelectorAll('.attendee-card').forEach(card => {
+                const name = card.querySelector('.attendee-name').value;
+                if (name) {
+                    attendees.push({
+                        name: name,
+                        arrival: card.querySelector('.arrival-date').value,
+                        departure: card.querySelector('.departure-date').value,
+                        hotel: card.querySelector('.hotel-name').value
+                    });
+                }
+            });
+            
+            if (attendees.length > 0) {
+                slide = prs.addSlide();
+                slide.background = { color: 'FFFFFF' };
+                slide.addText('Team Attending', { x: 0.5, y: 0.5, w: 9, h: 0.6, fontSize: 40, bold: true, color: colorPrimary });
+                
+                let y = 1.3;
+                attendees.forEach(att => {
+                    slide.addText(`${att.name} (${att.hotel})`, { x: 0.8, y: y, w: 8.7, h: 0.35, fontSize: 13, color: colorText });
+                    y += 0.4;
+                });
+            }
+            
+            // Slide 4: Booth Details
+            slide = prs.addSlide();
+            slide.background = { color: 'FFFFFF' };
+            slide.addText('Nutrislice Booth', { x: 0.5, y: 0.5, w: 9, h: 0.6, fontSize: 40, bold: true, color: colorPrimary });
+            slide.addText(`Booth #${document.getElementById('boothNumber').value} • ${document.getElementById('boothSize').value}`, { x: 0.5, y: 1.3, w: 9, h: 0.4, fontSize: 18, bold: true, color: colorText });
+            
+            const boothPackages = ['10\' Backwall Drape', '3\' Sidewall Drapes', '6\' Table', 'Chairs', 'Wastebasket', 'Booth Sign'];
+            let y = 1.9;
+            boothPackages.forEach(item => {
+                slide.addText('• ' + item, { x: 0.8, y: y, w: 8.7, h: 0.3, fontSize: 13, color: colorText });
+                y += 0.35;
+            });
+            
+            // Slide 5: Goals
+            slide = prs.addSlide();
+            slide.background = { color: 'FFFFFF' };
+            slide.addText('Show Goals', { x: 0.5, y: 0.5, w: 9, h: 0.6, fontSize: 40, bold: true, color: colorPrimary });
+            
+            const leadGoal = document.getElementById('leadGoal').value;
+            const oppGoal = document.getElementById('opportunityGoal').value;
+            
+            if (leadGoal) {
+                slide.addText('Leads', { x: 0.5, y: 1.3, w: 4, h: 0.4, fontSize: 16, bold: true, color: colorText });
+                slide.addText(leadGoal, { x: 0.5, y: 1.8, w: 4, h: 0.8, fontSize: 48, bold: true, color: '4CAF50', align: 'center' });
+            }
+            
+            if (oppGoal) {
+                slide.addText('Opportunities', { x: 5.5, y: 1.3, w: 4, h: 0.4, fontSize: 16, bold: true, color: colorText });
+                slide.addText(oppGoal, { x: 5.5, y: 1.8, w: 4, h: 0.8, fontSize: 48, bold: true, color: '4CAF50', align: 'center' });
+            }
+            
+            prs.writeFile({ fileName: `${document.getElementById('eventName').value.replace(/\s+/g, '_')}_Tradeshow.pptx` });
+            
+            showStatus('✓ PowerPoint generated and downloaded!', 'success');
+            document.getElementById('generateBtn').disabled = false;
+            
+        } catch (error) {
+            showStatus('✗ Error: ' + error.message, 'error');
+            console.error(error);
+            document.getElementById('generateBtn').disabled = false;
+        }
+    }, 500);
+}
+
+addAttendee();
+updateProgress();
+</script>
+</body>
+</html>
